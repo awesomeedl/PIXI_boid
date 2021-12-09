@@ -11,6 +11,8 @@
             const height = document.body.clientHeight;
             const rectSize = width / 100.0;
 
+            console.log(width, " ", height);
+
             const app = new PIXI.Application(width, height, {backgroundColor:0x000000});
 
             document.body.appendChild(app.view);
