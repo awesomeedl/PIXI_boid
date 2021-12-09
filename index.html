@@ -7,21 +7,28 @@
     </head>
     <body>
         <script>
-            const app = new PIXI.Application(document.body.clientWidth, document.body.clientHeight, {backgroundColor:0x000000});
+            const width = document.body.clientWidth;
+            const heght = document.body.clientHeight;
+            const rectSize = width / 100.0;
+
+            const app = new PIXI.Application(width, height, {backgroundColor:0x000000});
 
             document.body.appendChild(app.view);
 
             const graphics = new PIXI.Graphics();
             
-            graphics.beginFill(0xFEEB77);
-            graphics.drawRect(50, 50, 100, 100);
+            graphics.beginFill(0xFFFFFF);
+            graphics.drawRect(0, 0, rectSize, rectSize);
+            graphics.drawRect(0, height - rectSize, rectSize, height);
+            graphics.drawRect(width - rectSize, 0, width, height - rectSize);
+            graphics.drawRect(width - rectSize, height - rectSize, width, height);
 
             app.stage.addChild(graphics);
             
             window.addEventListener('resize', resize);
 
             function resize() {
-                app.renderer.resize(document.body.clientWidth, document.body.clientHeight);
+                app.renderer.resize(width, height);
             }
             
             resize();
