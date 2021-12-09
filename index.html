@@ -19,9 +19,18 @@
             
             graphics.beginFill(0xFFFFFF);
             graphics.drawRect(0, 0, rectSize, rectSize);
-            graphics.drawRect(0, height - rectSize, rectSize, height);
-            graphics.drawRect(width - rectSize, 0, width, height - rectSize);
-            graphics.drawRect(width - rectSize, height - rectSize, width, height);
+            graphics.endFill();
+
+            graphics.beginFill(0xFFFFFF);
+            graphics.drawRect(0, height - rectSize, rectSize, rectSize);
+            graphics.endFill();
+
+            graphics.beginFill(0xFFFFFF);
+            graphics.drawRect(width - rectSize, 0, rectSize, rectSize);
+            graphics.endFill();
+
+            graphics.beginFill(0xFFFFFF);
+            graphics.drawRect(width - rectSize, height - rectSize, rectSize, rectSize);
             graphics.endFill();
 
             app.stage.addChild(graphics);
