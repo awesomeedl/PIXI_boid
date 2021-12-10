@@ -1,4 +1,3 @@
-import * as PIXI from 'pixi.js';
 const width = document.body.clientWidth;
 const height = window.innerHeight - 4;
 const rectSize = width / 100;
@@ -9,35 +8,81 @@ const app = new PIXI.Application(width, height, {backgroundColor:0x000000});
 
 document.body.appendChild(app.view);
 
-let grid = initialize();
+const button = new PIXI.Graphics()
+    .beginFill(0xff0000)
+    .drawCircle(width / 2, height - 50, 20)
+    .endFill();
 
-for(let x = 0; x < grid.length; x++)
-{
-    for(let y = 0; y < grid[x].length; y++)
+button.interactive = true;
+button.buttonMode = true;
+button.on('pointerdown', execute);
+
+app.stage.addChild(button);
+
+function execute() {
+    if(graphics.interactive == true)
     {
-        if(grid[x][y][0]  === 1)
-        {
-            graphics.beginFill(0xFFFFFF);
-            graphics.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
-            graphics.endFill();
-        }
+        graphics.interactive = false;
+    }
+    else
+    {
+        grid = initialize();
     }
 }
 
+const graphics = new PIXI.Graphics();
 app.stage.addChild(graphics);
+
+let grid = initialize();
+
+graphics.on('pointerdown', onClick);
+
+function onClick(event) {
+    let x = Math.floor(event.data.global.x / rectSize);
+    let y = Math.floor(event.data.global.y / rectSize);
+
+    if(grid[x][y][0] === 0)
+    {
+        grid[x][y] = [1, 1]
+        graphics.beginFill(0xFFFFFF)
+        .drawRect(x * rectSize, y * rectSize, rectSize, rectSize)
+        .endFill();
+    }
+    else
+    {
+        grid[x][y] = [0, 0]
+        graphics.beginFill(0x000000)
+        .drawRect(x * rectSize, y * rectSize, rectSize, rectSize)
+        .endFill();
+    }
+}
+
+// for(let x = 0; x < grid.length; x++)
+// {
+//     for(let y = 0; y < grid[x].length; y++)
+//     {
+//         if(grid[x][y][0]  === 1)
+//         {
+//             graphics.beginFill(0xFFFFFF);
+//             graphics.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
+//             graphics.endFill();
+//         }
+//     }
+// }
+
 
 
 
 let timer = 0.0;
 app.ticker.add((delta) =>{
+    if(graphics.interactive == true) return;
     timer += delta;
     {
-        if(timer > 30.0)
+        if(timer > 10.0)
         {
             timer = 0.0;
             recalculate();
             redraw();
-            console.log(PIXI.Interaction);
         }
     }
 })
@@ -54,9 +99,9 @@ function redraw()
             if(grid[x][y][0] === 1)
                 graphics.beginFill(0xFFFFFF);
             else
-                graphics.beginFill(0x000000);
-            graphics.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
-            graphics.endFill();
+                graphics.beginFill(0x000000)
+                .drawRect(x * rectSize, y * rectSize, rectSize, rectSize)
+                .endFill();
         }
     }
 }
@@ -134,24 +179,43 @@ function resize() {
     app.renderer.resize(width, height);
 }
 
-function initialize()
-{
+// function initialize()
+// {
+//     let grid = new Array(Math.floor(width / rectSize));
+//     for(let x = 0; x < grid.length; x ++)
+//     {
+//         grid[x] = new Array(Math.floor(height / rectSize))
+//         for(let y = 0; y < grid[x].length; y ++)
+//         {
+//             if(Math.random() > 0.7)
+//             {
+//                 grid[x][y] = [1, 1];
+//             }
+//             else
+//             {
+//                 grid[x][y] = [0, 0];
+//             }
+//         }
+//     }
+//     return grid;
+// }
+
+function initialize() {
     let grid = new Array(Math.floor(width / rectSize));
-    for(let x = 0; x < grid.length; x ++)
+    for(let x = 0; x < grid.length; x++)
     {
-        grid[x] = new Array(Math.floor(height / rectSize))
-        for(let y = 0; y < grid[x].length; y ++)
+        grid[x] = new Array(Math.floor((height - 100) / rectSize))
+        for(let y = 0; y < grid[x].length; y++)
         {
-            if(Math.random() > 0.7)
-            {
-                grid[x][y] = [1, 1];
-            }
-            else
-            {
-                grid[x][y] = [0, 0];
-            }
+            grid[x][y] = [0, 0];
+
+            graphics.beginFill(0x000000)
+            .lineStyle(1, 0x999999, 1, 1)
+            .drawRect(x * rectSize, y * rectSize, rectSize, rectSize)
+            .endFill();
         }
     }
+    graphics.interactive = true;
     return grid;
 }
 
