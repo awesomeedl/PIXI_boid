@@ -1,6 +1,8 @@
-const width = document.body.clientWidth;
-const height = window.innerHeight - 4;
-const rectSize = width / 100;
+let calculate = false;
+
+let width = document.body.clientWidth;
+let height = window.innerHeight - 4;
+let rectSize = width / 100;
 
 console.log(width, " ", height);
 
@@ -16,113 +18,90 @@ const button = new PIXI.Graphics()
 button.interactive = true;
 button.buttonMode = true;
 button.on('pointerdown', execute);
-
 app.stage.addChild(button);
 
+const graphics = new PIXI.Graphics();
+graphics.on('pointerdown', onClick);
+app.stage.addChild(graphics);
+
+let grid = new Array();
+initialize();
+
 function execute() {
-    if(graphics.interactive == true)
+    if(calculate === false)
     {
+        calculate = true;
         graphics.interactive = false;
     }
     else
     {
-        grid = initialize();
+        calculate = false;
+        initialize();
     }
 }
 
-const graphics = new PIXI.Graphics();
-app.stage.addChild(graphics);
-
-let grid = initialize();
-
-graphics.on('pointerdown', onClick);
 
 function onClick(event) {
     let x = Math.floor(event.data.global.x / rectSize);
     let y = Math.floor(event.data.global.y / rectSize);
-
     if(grid[x][y][0] === 0)
     {
-        grid[x][y] = [1, 1]
+        grid[x][y] = [1, 1];
         graphics.beginFill(0xFFFFFF)
         .drawRect(x * rectSize, y * rectSize, rectSize, rectSize)
-        .endFill();
+
     }
     else
     {
-        grid[x][y] = [0, 0]
+        grid[x][y] = [0, 0];
         graphics.beginFill(0x000000)
         .drawRect(x * rectSize, y * rectSize, rectSize, rectSize)
-        .endFill();
+
     }
+    graphics.endFill();
 }
-
-// for(let x = 0; x < grid.length; x++)
-// {
-//     for(let y = 0; y < grid[x].length; y++)
-//     {
-//         if(grid[x][y][0]  === 1)
-//         {
-//             graphics.beginFill(0xFFFFFF);
-//             graphics.drawRect(x * rectSize, y * rectSize, rectSize, rectSize);
-//             graphics.endFill();
-//         }
-//     }
-// }
-
-
-
-
-let timer = 0.0;
-app.ticker.add((delta) =>{
-    if(graphics.interactive == true) return;
-    timer += delta;
-    {
-        if(timer > 10.0)
-        {
-            timer = 0.0;
-            recalculate();
-            redraw();
-        }
-    }
-})
-
-window.addEventListener('resize', resize);
 
 function redraw()
 {
+    graphics.clear();
     for(let x = 0; x < grid.length; x++)
     {
         for(let y = 0; y < grid[x].length; y++)
         {
             grid[x][y][0] = grid[x][y][1];
             if(grid[x][y][0] === 1)
-                graphics.beginFill(0xFFFFFF);
+            {
+                graphics.beginFill(0xFFFFFF)
+                .drawRect(x * rectSize, y * rectSize, rectSize, rectSize)
+            }
             else
+            {
                 graphics.beginFill(0x000000)
                 .drawRect(x * rectSize, y * rectSize, rectSize, rectSize)
-                .endFill();
+            }
         }
     }
+    graphics.endFill();
 }
 
 function recalculate()
 {
-    //console.log("recalculate");
     for(let x = 0; x < grid.length; x++)
     {
         for(let y = 0; y < grid[x].length; y++)
         {
             let count = 0;
 
-            for(let i = x - 1; i <= x + 1; i++)
+            for(let i = (x - 1); i <= (x + 1); i++)
             {
                 if(i < 0 || i >= grid.length) continue;
                 
-                for(let j = y - 1; j <= y + 1; j++)
+                for(let j = (y - 1); j <= (y + 1); j++)
                 {
                     if(j < 0 || j >= grid[x].length) continue;
+
                     if(i === x && j === y) continue;
+
                     if(grid[i][j][0] === 1)
                     {
                         count++;
@@ -139,7 +118,7 @@ function recalculate()
             }
             else
             {
-                if(count == 3)
+                if(count === 3)
                 {
                     grid[x][y][1] = 1; // Mark for creation
                 }
@@ -149,59 +128,10 @@ function recalculate()
     }
 }
 
-function countNeighbors(x, y)
-{
-    console.log("neighbor")
-    count = 0;
-    // let minX = Math.max(x - 1, 0);
-    // let maxX = Math.min(x + 1, grid.length);
-    // let minY = Math.max(y - 1, 0);
-    // let maxY = Math.min(y + 1, grid[0].length);
-
-    for(let i = x - 1; i <= x + 1; i++)
-    {
-        if(i < 0 || i >= grid.length) continue;
-        for(let j = y - 1; j <= y + 1; j++)
-        {
-            if(j < 0 || j >= grid.length) continue;
-            if(i == x && j == y) continue;
-            if(grid[x][y][0] === 1)
-            {
-                count++;
-            }
-        }
-    }
-
-    return count;
-}
-
-function resize() {
-    app.renderer.resize(width, height);
-}
-
-// function initialize()
-// {
-//     let grid = new Array(Math.floor(width / rectSize));
-//     for(let x = 0; x < grid.length; x ++)
-//     {
-//         grid[x] = new Array(Math.floor(height / rectSize))
-//         for(let y = 0; y < grid[x].length; y ++)
-//         {
-//             if(Math.random() > 0.7)
-//             {
-//                 grid[x][y] = [1, 1];
-//             }
-//             else
-//             {
-//                 grid[x][y] = [0, 0];
-//             }
-//         }
-//     }
-//     return grid;
-// }
-
 function initialize() {
-    let grid = new Array(Math.floor(width / rectSize));
+    grid = new Array(Math.floor(width / rectSize));
+    graphics.clear();
+    graphics.beginFill(0x000000)
     for(let x = 0; x < grid.length; x++)
     {
         grid[x] = new Array(Math.floor((height - 100) / rectSize))
@@ -209,14 +139,35 @@ function initialize() {
         {
             grid[x][y] = [0, 0];
 
-            graphics.beginFill(0x000000)
+            graphics
             .lineStyle(1, 0x999999, 1, 1)
             .drawRect(x * rectSize, y * rectSize, rectSize, rectSize)
-            .endFill();
         }
     }
+    graphics.endFill();
     graphics.interactive = true;
-    return grid;
+}
+
+let timer = 0.0;
+app.ticker.add((delta) =>{
+    if(calculate === false) return;
+    timer += delta;
+    {
+        if(timer > 10.0)
+        {
+            timer = 0.0;
+            recalculate();
+            redraw();
+        }
+    }
+})
+
+// UI -----------------------------------
+
+window.addEventListener('resize', resize);
+
+function resize() {
+    app.renderer.resize(width, height);
 }
 
 resize();
