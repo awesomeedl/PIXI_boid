@@ -11,7 +11,7 @@ const app = new PIXI.Application(width, height, {backgroundColor:0x000000});
 document.body.appendChild(app.view);
 
 const button = new PIXI.Graphics()
-    .beginFill(0xff0000)
+    .beginFill(0x00ff00)
     .drawCircle(width / 2, height - 50, 20)
     .endFill();
 
@@ -32,11 +32,21 @@ function execute() {
     {
         calculate = true;
         graphics.interactive = false;
+
+        button.clear();
+        button.beginFill(0xff0000)
+        .drawCircle(width / 2, height - 50, 20)
+        .endFill();
     }
     else
     {
         calculate = false;
         initialize();
+
+        button.clear()
+        button.beginFill(0x00ff00)
+        .drawCircle(width / 2, height - 50, 20)
+        .endFill();
     }
 }
 
@@ -90,28 +100,11 @@ function recalculate()
     {
         for(let y = 0; y < grid[x].length; y++)
         {
-            let count = 0;
-
-            for(let i = (x - 1); i <= (x + 1); i++)
-            {
-                if(i < 0 || i >= grid.length) continue;
-                
-                for(let j = (y - 1); j <= (y + 1); j++)
-                {
-                    if(j < 0 || j >= grid[x].length) continue;
-
-                    if(i === x && j === y) continue;
-
-                    if(grid[i][j][0] === 1)
-                    {
-                        count++;
-                    }
-                }
-            }
+            let count = calculateNeighbor(x, y);
 
             if(grid[x][y][0] === 1) // Alive
             {
-                if (count < 2 || count >= 3)
+                if (count < 2 || count > 3)
                 {
                     grid[x][y][1] = 0; // Mark for deletion
                 }  
@@ -126,6 +119,24 @@ function recalculate()
 
         }
     }
+}
+
+function calculateNeighbor(x, y)
+{
+    let count = 0;
+    for(let i = (x - 1) < 0 ? 0 : (x - 1); i <= (x + 1) && i < grid.length; i++)
+    {
+        for(let j = (y - 1) < 0 ? 0 : (y - 1); j <= (y + 1) && j < grid[0].length; j++)
+        {
+            if(i === x && j === y) continue;
+
+            if(grid[i][j][0] === 1)
+            {
+                count++;
+            }
+        }
+    }
+    return count;
 }
 
 function initialize() {
