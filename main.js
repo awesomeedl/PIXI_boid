@@ -1,5 +1,5 @@
 let width = window.innerWidth;
-let height = windows.innerHeight;
+let height = window.innerHeight;
 
 // Create the application 
 let app = new PIXI.Application({ width: width, height: height });
