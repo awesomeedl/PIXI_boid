@@ -10,8 +10,6 @@ let boids = [];
 
 let texture = PIXI.Texture.from('Arrow.png');
 
-init();
-
 function init() {
     for(let i = 0; i < number; i++)
     {
@@ -24,3 +22,5 @@ function init() {
         app.stage.addChild(boid);
     }
 }
+
+init();
