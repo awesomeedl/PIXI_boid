@@ -1,14 +1,31 @@
-// Create the application helper and add its render target to the page
-let app = new PIXI.Application({ width: 640, height: 360 });
+let width = document.body.clientWidth;
+let height = document.body.clientHeight;
+
+// Create the application 
+let app = new PIXI.Application({ width, height });
 document.body.appendChild(app.view);
 
-// Create the sprite and add it to the stage
-let sprite = PIXI.Sprite.from('Arrow.png');
-app.stage.addChild(sprite);
+let graphics = new PIXI.Graphics();
+app.stage.addChild(graphics);
 
-// Add a ticker callback to move the sprite back and forth
-let elapsed = 0.0;
-app.ticker.add((delta) => {
-elapsed += delta;
-sprite.x = 100.0 + Math.cos(elapsed/50.0) * 100.0;
-});
+let number = 30;
+let boids = [];
+
+let texture = PIXI.Texture.from('Arrow.png');
+
+function init() {
+    for(let i = 0; i < number; i++)
+    {
+        let boid = new PIXI.Sprite(texture);
+        boid.anchor.set(0.5);
+
+        boid.x = Math.random() * width;
+        boid.y = Math.random() * height;
+        
+        app.stage.addChild(boid);
+    }
+}
+
+function draw_boids() {
+
+}
