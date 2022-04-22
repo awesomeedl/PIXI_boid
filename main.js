@@ -2,7 +2,7 @@ let width = document.body.clientWidth;
 let height = document.body.clientHeight;
 
 // Create the application 
-let app = new PIXI.Application({ width, height });
+let app = new PIXI.Application({ width: width, height: height });
 document.body.appendChild(app.view);
 
 let number = 30;
@@ -20,7 +20,7 @@ function init() {
 
         boid.x = Math.random() * width;
         boid.y = Math.random() * height;
-
+        console.log('(' + boid.x + ', ' + boid.y + ')');
         app.stage.addChild(boid);
     }
 }
