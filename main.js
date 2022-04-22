@@ -3,7 +3,7 @@ let app = new PIXI.Application({ width: 640, height: 360 });
 document.body.appendChild(app.view);
 
 // Create the sprite and add it to the stage
-let sprite = PIXI.Sprite.from('sample.png');
+let sprite = PIXI.Sprite.from('Arrow.png');
 app.stage.addChild(sprite);
 
 // Add a ticker callback to move the sprite back and forth
