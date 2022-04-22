@@ -6,7 +6,6 @@ let app = new PIXI.Application({ width: width, height: height });
 document.body.appendChild(app.view);
 
 let number = 30;
-let boids = [];
 
 let texture = PIXI.Texture.from('Arrow.png');
 
