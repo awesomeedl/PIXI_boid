@@ -24,7 +24,3 @@ function init() {
         app.stage.addChild(boid);
     }
 }
-
-function draw_boids() {
-
-}
