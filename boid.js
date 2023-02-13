@@ -1,3 +1,5 @@
+import { Sprite, Texture } from './pixi.mjs'
+
 const maxVelocity = 3;
 const maxAcceleration = 0.03;
 
@@ -8,19 +10,19 @@ const alignmentWeight = 1.0;
 const visibilityRange = 300.0;
 const separateRange = 100.0;
 
-class Boid {
+export default class Boid {
     constructor(position, app) {
         this.position = position;
         this.velocity = Victor().randomize(Victor(-maxVelocity, -maxVelocity), Victor(maxVelocity, maxVelocity));
         this.acceleration = new Victor();
 
-        this.img = new PIXI.Sprite(PIXI.Texture.from('Arrow.png'));
+        this.img = new Sprite(Texture.from('Arrow.png'));
         this.img.anchor.set(0.5);
 
         app.stage.addChild(this.img);
     }
 
-    run(flock) {
+    run(flock, width, height) {
         let a1 = this.cohesion(flock).multiplyScalar(cohesionWeight);
         let a2 = this.separation(flock).multiplyScalar(separationWeight);
         let a3 = this.alignment(flock).multiplyScalar(alignmentWeight);
@@ -31,7 +33,7 @@ class Boid {
             this.acceleration.normalize().multiplyScalar(maxAcceleration)
         }
 
-        console.log(this.acceleration)
+        // console.log(this.acceleration)
 
         this.velocity.add(this.acceleration);
 
@@ -125,4 +127,4 @@ class Boid {
             return Victor().zero();
         }
     }
-}   
+}
