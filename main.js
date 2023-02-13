@@ -7,19 +7,26 @@ document.body.appendChild(app.view);
 
 let number = 30;
 
-let texture = PIXI.Texture.from('Arrow.png');
+let flock = [];
+
 
 function init() {
-    for(let i = 0; i < number; i++)
-    {
-        let boid = new PIXI.Sprite(texture);
-        boid.anchor.set(0.5);
+    for (let i = 0; i < number; i++) {
+        let boid = new Boid(Victor().randomize(Victor(0, 0), Victor(width, height)), app)
+        flock.push(boid);
+    }
 
-        boid.x = Math.random() * width;
-        boid.y = Math.random() * height;
-        console.log('(' + boid.x + ', ' + boid.y + ')');
-        app.stage.addChild(boid);
+    console.log(flock.length);
+}
+
+function calculate() {
+    for (let boid of flock) {
+        boid.run(flock);
     }
 }
 
 init();
+
+app.ticker.add((delta) => {
+    calculate();
+})
