@@ -1,14 +1,13 @@
 import { Sprite, Texture } from './pixi.mjs'
+import './Victor.js'
 
 const maxVelocity = 3;
 const maxAcceleration = 0.03;
 
-const cohesionWeight = 0.01;
+const cohesionWeight = 1;
 const separationWeight = 100.0;
-const alignmentWeight = 1.0;
-
-const visibilityRange = 300.0;
-const separateRange = 100.0;
+const alignmentWeight = 1;
+const separateRange = 500.0;
 
 export default class Boid {
     constructor(position, app) {
@@ -17,6 +16,7 @@ export default class Boid {
         this.acceleration = new Victor();
 
         this.img = new Sprite(Texture.from('Arrow.png'));
+        this.img.scale.set(0.5);
         this.img.anchor.set(0.5);
 
         app.stage.addChild(this.img);
@@ -59,7 +59,7 @@ export default class Boid {
         let count = 0;
 
         for (const boid of flock) {
-            if (boid !== this && this.position.distance(boid.position) < visibilityRange) {
+            if (boid !== this) {
                 perceivedCenter.add(boid.position);
                 count++
             }
@@ -82,7 +82,7 @@ export default class Boid {
         let count = 0;
 
         for (const boid of flock) {
-            if (boid !== this && this.position.distance(boid.position) < visibilityRange) {
+            if (boid !== this) {
                 perceivedVelocity.add(boid.velocity);
                 count++;
             }
@@ -102,29 +102,17 @@ export default class Boid {
     }
 
     separation(flock) {
-        let c = Victor()
-        let count = 0;
+        let c = Victor().zero()
 
         for (const boid of flock) {
-            if (boid !== this && this.position.distance(boid.position) < separateRange) {
-                let distance = this.position.distance(boid.position);
-
+            if (boid === this) continue;
+            let distance = this.position.distance(boid.position);
+            if (distance < separateRange) {
                 c.add(this.position.clone().subtract(boid.position).divideScalar(distance));
-                count++;
             }
 
         }
 
-        if(count > 0)
-        {
-
-            c.divideScalar(count);
-
-            return c;
-        }
-        else
-        {
-            return Victor().zero();
-        }
+        return c;
     }
 }
