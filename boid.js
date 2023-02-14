@@ -1,27 +1,78 @@
-import { Sprite, Texture } from './pixi.mjs'
+import { Application, Sprite, Texture } from './pixi.mjs'
 import './Victor.js'
+//import Victor from './Victor.js';
 
-const maxVelocity = 3;
-const maxAcceleration = 0.03;
+const maxVelocity = 2;
+const maxAcceleration = maxVelocity * 0.1;
 
 const cohesionWeight = 1;
-const separationWeight = 100.0;
-const alignmentWeight = 1;
-const separateRange = 500.0;
+const separationWeight = 5;
+const alignmentWeight = 10;
 
-export default class Boid {
+const cohesionRange = 200;
+const alignmentRange = 200;
+
+const separateRange = 100;
+
+class Flock
+{
+    /**
+     * 
+     * @param {Number} numBoids 
+     * @param {Application} pixiApp 
+     */
+    constructor(numBoids, pixiApp)
+    {
+        /**
+         * @type {Boid[]}
+         */
+        this.flock = []
+        for(let i = 0; i < numBoids; i++)
+        {
+            let b = new Boid(Victor().randomize(Victor(0, 0), Victor(pixiApp.renderer.width, pixiApp.renderer.height)), pixiApp);
+            this.flock.push(b);
+        }
+    }
+
+    run(pixiApp)
+    {
+        for(let boid of this.flock)
+        {
+            boid.run(this.flock, pixiApp.renderer.width, pixiApp.renderer.height);
+        }
+    }
+}
+
+class Boid {
+    /**
+     * 
+     * @param {Victor} position 
+     * @param {Application} app 
+     */
     constructor(position, app) {
-        this.position = position;
-        this.velocity = Victor().randomize(Victor(-maxVelocity, -maxVelocity), Victor(maxVelocity, maxVelocity));
-        this.acceleration = new Victor();
 
-        this.img = new Sprite(Texture.from('Arrow.png'));
+
+        /** @type{Victor} */ this.position = position;
+
+
+        /** @type{Victor} */ this.velocity = Victor().randomize(Victor(-maxVelocity, -maxVelocity), Victor(maxVelocity, maxVelocity));
+
+        /** @type{Victor} */ this.acceleration = new Victor();
+
+        /** @type{Sprite} */ this.img = new Sprite(Texture.from('Arrow.png'));
+
         this.img.scale.set(0.5);
         this.img.anchor.set(0.5);
 
         app.stage.addChild(this.img);
     }
 
+    /**
+     *  
+     * @param {Boid[]} flock 
+     * @param {Number} width 
+     * @param {Number} height 
+     */
     run(flock, width, height) {
         let a1 = this.cohesion(flock).multiplyScalar(cohesionWeight);
         let a2 = this.separation(flock).multiplyScalar(separationWeight);
@@ -35,11 +86,8 @@ export default class Boid {
 
         // console.log(this.acceleration)
 
-        this.velocity.add(this.acceleration);
+        this.velocity.add(this.acceleration).normalize().multiplyScalar(maxVelocity)
 
-        if (this.velocity.length() > maxVelocity) {
-            this.velocity.normalize().multiplyScalar(maxVelocity)
-        }
 
         this.position.add(this.velocity);
 
@@ -54,65 +102,65 @@ export default class Boid {
         this.img.y = this.position.y;
     }
 
+    /**
+     * 
+     * @param {Boid[]} flock 
+     * @returns {Victor}
+     */
     cohesion(flock) {
         let perceivedCenter = Victor();
         let count = 0;
 
         for (const boid of flock) {
-            if (boid !== this) {
+            if (boid !== this && this.position.distance(boid.position) < cohesionRange) {
                 perceivedCenter.add(boid.position);
                 count++
             }
         }
 
-        if(count > 0)
-        {
-            perceivedCenter.divideScalar(count);
-
-            return perceivedCenter.subtract(this.position);
-        }
-        else
-        {
-            return Victor().zero();
-        }
+        return count > 0 ? perceivedCenter.divideScalar(count).subtract(this.position).mix(this.velocity, 0.2) : Victor().zero();
     }
 
+    /**
+     * 
+     * @param {Boid[]} flock 
+     * @returns {Victor}
+     */
     alignment(flock) {
-        let perceivedVelocity = Victor();
+        let perceivedVelocity = Victor().zero();
         let count = 0;
 
         for (const boid of flock) {
-            if (boid !== this) {
+            if (boid !== this && this.position.distance(boid.position) < alignmentRange) {
                 perceivedVelocity.add(boid.velocity);
                 count++;
             }
         }
 
-        if(count > 0)
-        {
 
-            perceivedVelocity.divideScalar(count);
-
-            return perceivedVelocity.subtract(this.velocity);
-        }
-        else
-        {
-            return Victor().zero();
-        }
+        return count > 0 ? perceivedVelocity.divideScalar(count).subtract(this.velocity) : this.velocity;
     }
 
+    /**
+     * 
+     * @param {Boid[]} flock 
+     * @returns {Victor}
+     */
     separation(flock) {
         let c = Victor().zero()
 
         for (const boid of flock) {
-            if (boid === this) continue;
-            let distance = this.position.distance(boid.position);
-            if (distance < separateRange) {
-                c.add(this.position.clone().subtract(boid.position).divideScalar(distance));
+            if (boid !== this && this.position.distance(boid.position) < separateRange)
+            {
+                let distance = this.position.distance(boid.position);
+                if (distance < separateRange) {
+                    c.add(this.position.clone().subtract(boid.position).divideScalar(distance));
+                }
             }
-
         }
 
         return c;
     }
 }
+
+export { Flock, Boid }
