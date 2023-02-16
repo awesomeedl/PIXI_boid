@@ -1,6 +1,5 @@
-import {Application} from 'https://cdn.jsdelivr.net/npm/pixi.js@7.1.2/dist/pixi.min.mjs';
+import {Application} from "pixi"
 import {Flock} from './boid.mjs'
-import './victor.min.js'
 
 // Create the application 
 let app = new Application({ resizeTo: window, autoDensity: true});

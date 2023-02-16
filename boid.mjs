@@ -1,5 +1,5 @@
-import {Application, Renderer, Sprite, Texture, utils} from 'https://cdn.jsdelivr.net/npm/pixi.js@7.1.2/dist/pixi.min.mjs'
-import './victor.min.js'
+import {Application, Renderer, Sprite, Texture, utils} from "pixi"
+import "victor"
 
 const maxVelocity = 1.5;
 const maxAcceleration = 0.1;
