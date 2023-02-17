@@ -4,31 +4,19 @@
 
 <head>
     <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+    {
+        "imports":
+        {
+            "pixi": "https://cdn.jsdelivr.net/npm/pixi.js@7.1.2/dist/pixi.min.mjs",
+            "victor": "https://cdnjs.cloudflare.com/ajax/libs/victor/1.1.0/victor.min.js"
+        }
+    }
+    </script>
 </head>
 
 <body>
-    <script type="importmap">
-        {
-            "imports":
-            {
-                "pixi": "https://cdn.jsdelivr.net/npm/pixi.js@7.1.2/dist/pixi.min.mjs",
-                "victor": "https://cdnjs.cloudflare.com/ajax/libs/victor/1.1.0/victor.min.js"
-            }
-        }
-    </script>
-
-    <script type="module">
-        import {Application} from "pixi"
-        import {Flock} from './boid.mjs'
-
-        // Create the application 
-        let app = new Application({ resizeTo: window, autoDensity: true});
-        document.body.appendChild(app.view);
-
-        let flock = new Flock(500, app);
-
-        app.ticker.add(() => flock.run());
-    </script>
+    <script type="module" src="main.mjs"></script>
 </body>
 
 </html>
