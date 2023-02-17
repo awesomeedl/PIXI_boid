@@ -1,7 +1,7 @@
 import {Application, Renderer, Sprite, Texture, utils} from "pixi"
 import "victor"
 
-const maxVelocity = 1.5;
+const maxVelocity = 3;
 const maxAcceleration = 0.1;
 
 const cohesionWeight = 1;
@@ -9,8 +9,6 @@ const separationWeight = 500;
 const alignmentWeight = 15;
 
 const visibleRange = 100;
-
-const separateRange = 50;
 
 class Flock {
     /**
@@ -40,10 +38,9 @@ class Flock {
             let boid = this.flock[i];
             let sprite = this.sprites[i];
 
-            let [acceleration, c, s, a] = boid.run(this.flock);
+            let acceleration = boid.run(this.flock);
 
             boid.velocity.add(acceleration).normalize().multiplyScalar(maxVelocity)
-
 
             boid.position.add(boid.velocity);
 
@@ -77,81 +74,73 @@ class Boid {
      * @return {Victor}
      */
     run(flock) {
-        let a1 = this.cohesion(flock).multiplyScalar(cohesionWeight);
-        let a2 = this.separation(flock).multiplyScalar(separationWeight);
-        let a3 = this.alignment(flock).multiplyScalar(alignmentWeight);
+        let neighbors = this.findNeighbor(flock);
 
-        this.acceleration = Victor().zero()
-        this.acceleration.add(a1);
-        this.acceleration.add(a2);
-        this.acceleration.add(a3);
+        let a1 = this.cohesion(neighbors).multiplyScalar(cohesionWeight);
+        let a2 = this.separation(neighbors).multiplyScalar(separationWeight);
+        let a3 = this.alignment(neighbors).multiplyScalar(alignmentWeight);
+
+        this.acceleration = a1.add(a2).add(a3);
 
         if (this.acceleration.length() > maxAcceleration) {
             this.acceleration.normalize().multiplyScalar(maxAcceleration)
         }
 
-        return([this.acceleration, a1, a2, a3]);
+        return(this.acceleration);
+    }
+
+    /**
+     * 
+     * @param {Boid[]} flock 
+     * @returns Boid[]
+     */
+    findNeighbor(flock)
+    {
+        return flock.filter(boid => boid !== this && this.position.distance(boid.position) < visibleRange);
     }
 
     /**
      *
-     * @param {Boid[]} flock
+     * @param {Boid[]} neighbors
      * @returns {Victor}
      */
-    cohesion(flock) {
-        let perceivedCenter = Victor();
-        let count = 0;
-
-        for (const boid of flock) {
-            if (boid === this) continue;
-            let distance = this.position.distance(boid.position) 
-            if(distance < visibleRange) {
-                perceivedCenter.add(boid.position);
-                count++
-            }
-        }
-
-        return count > 0 ? perceivedCenter.divideScalar(count).subtract(this.position) : Victor().zero();
+    cohesion(neighbors) {
+        return neighbors.length > 0 ? 
+            neighbors
+                .reduce((a, b) => a.add(b.position), Victor().zero())
+                .divideScalar(neighbors.length)
+                .subtract(this.position) : 
+            Victor().zero();
     }
 
     /**
      *
-     * @param {Boid[]} flock
+     * @param {Boid[]} neighbors
      * @returns {Victor}
      */
-    alignment(flock) {
-        let perceivedVelocity = Victor().zero();
-        let count = 0;
-
-        for (const boid of flock) {
-            if (boid !== this && this.position.distance(boid.position) < visibleRange) {
-                perceivedVelocity.add(boid.velocity);
-                count++;
-            }
-        }
-
-
-        return count > 0 ? perceivedVelocity.divideScalar(count).subtract(this.velocity).mix(this.velocity, 0.2) : this.velocity;
+    alignment(neighbors) {
+        return neighbors.length > 0 ? 
+            neighbors
+                .reduce((a, b) => a.add(b.velocity), Victor())
+                .divideScalar(neighbors.length)
+                .subtract(this.velocity)
+                .mix(this.velocity, 0.2) : 
+            this.velocity;
     }
 
     /**
      *
-     * @param {Boid[]} flock
+     * @param {Boid[]} neighbors
      * @returns {Victor}
      */
-    separation(flock) {
-        let c = Victor().zero()
-
-        for (const boid of flock) {
-            if (boid !== this && this.position.distance(boid.position) < separateRange) {
-                let distance = this.position.distance(boid.position);
-
-                c.add(this.position.clone().subtract(boid.position).divideScalar(distance * distance));
-
-            }
-        }
-
-        return c;
+    separation(neighbors) {
+        return neighbors.reduce((a, b) => 
+            a.add(
+                this.position
+                    .clone()
+                    .subtract(b.position)
+                    .divideScalar(this.position.distanceSq(b.position))), 
+                Victor().zero());
     }
 }
 
