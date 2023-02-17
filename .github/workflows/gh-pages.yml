@@ -3,6 +3,7 @@ name: Deploy to github pages
 
 # Run on pushes to `main` branch
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'main'
@@ -13,22 +14,24 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      -name: Install CLI tools
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-        run: npm install -g terser
-        run: npm install -g csso-cli
-        run: npm install -g html-minifier
-
-      -name: Compressing assets
-        run: for i in ./js/*.js; do terser $i --compress -o $i; done
-        run: for i in ./css/*.css; do csso $i -o $i; done
-        run: for i in ./html/*.html; do html-minifier --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --minify-css true --minify-js true $i -o $i; done
-      
-      -name: Deploy
+          
+      - name: Install Dependencies
+        run: npm install -g terser csso-cli html-minifier
+        
+      - name: Compressing assets
+        run:
+          shopt -s nullglob;
+          for i in ./*.{js,mjs}; do terser $i --compress --mangle --module -o $i; done;
+          for i in ./*.css; do csso $i -o $i; done;
+          for i in ./*.html; do html-minifier --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --minify-css true --minify-js true $i -o $i; done;
+          
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          publish_dir: ./
