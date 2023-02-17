@@ -1,1 +1,1 @@
-import{Application}from"pixi";import{Flock}from"./boid.mjs";let app=new Application({resizeTo:window,autoDensity:!0});document.body.appendChild(app.view);let flock=new Flock(500,app);app.ticker.add((()=>flock.run()));
+import{Application as e}from"pixi";import{Flock as i}from"./boid.mjs";let o=new e({resizeTo:window,autoDensity:!0});document.body.appendChild(o.view);let d=new i(500,o);o.ticker.add((()=>d.run()));
