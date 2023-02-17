@@ -3,12 +3,17 @@ import "victor"
 
 const maxVelocity = 3;
 const maxAcceleration = 0.1;
+const maxAccelSq = maxAcceleration * maxAcceleration;
 
 const cohesionWeight = 1;
 const separationWeight = 500;
 const alignmentWeight = 15;
 
 const visibleRange = 100;
+const visibleRangeSq = visibleRange * visibleRange;
+
+const separateRange = 50;
+const separateRangeSq = separateRange * separateRange;
 
 class Flock {
     /**
@@ -82,7 +87,7 @@ class Boid {
 
         this.acceleration = a1.add(a2).add(a3);
 
-        if (this.acceleration.length() > maxAcceleration) {
+        if (this.acceleration.lengthSq() > maxAccelSq) {
             this.acceleration.normalize().multiplyScalar(maxAcceleration)
         }
 
@@ -96,7 +101,7 @@ class Boid {
      */
     findNeighbor(flock)
     {
-        return flock.filter(boid => boid !== this && this.position.distance(boid.position) < visibleRange);
+        return flock.filter(boid => boid !== this && this.position.distanceSq(boid.position) < visibleRangeSq);
     }
 
     /**
@@ -134,7 +139,8 @@ class Boid {
      * @returns {Victor}
      */
     separation(neighbors) {
-        return neighbors.reduce((a, b) => 
+        return neighbors.filter(boid => this.position.distanceSq(boid.position) < separateRangeSq)
+            .reduce((a, b) => 
             a.add(
                 this.position
                     .clone()
