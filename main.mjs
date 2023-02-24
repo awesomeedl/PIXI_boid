@@ -1,1 +1,1 @@
-import{Application as e}from"pixi";import{Flock as i}from"./boid.mjs";let o=new e({resizeTo:window,autoDensity:!0});document.body.appendChild(o.view);let d=new i(500,o);o.ticker.add((()=>d.run()));
+import{Application as o}from"pixi";import{Flock as p}from"./boid.mjs";import{SpatialHash as a}from"./spatial_hash.mjs";export const app=new o({resizeTo:window,autoDensity:!0});export const spatialHash=new a;const i=new p(500);document.body.appendChild(app.view),app.ticker.add((()=>{spatialHash.refresh(i),i.run()}));
