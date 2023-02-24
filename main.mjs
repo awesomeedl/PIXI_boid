@@ -1,9 +1,15 @@
-import {Application} from "pixi"
-import {Flock} from './boid.mjs'
+import { Application } from "pixi"
+import { Flock } from './boid.mjs'
+import { SpatialHash } from "./spatial_hash.mjs";
 
-let app = new Application({ resizeTo: window, autoDensity: true});
+export const app = new Application({ resizeTo: window, autoDensity: true });
+export const spatialHash = new SpatialHash()
+
+const flock = new Flock(500);
+
 document.body.appendChild(app.view);
 
-let flock = new Flock(500, app);
-
-app.ticker.add(() => flock.run());
+app.ticker.add(() => {
+    spatialHash.refresh(flock);
+    flock.run()
+});
